@@ -8,6 +8,7 @@ export const ClickGame = () => {
     const [autoPlay, setAutoPlay] = useState(false);
     const [renderArray, setRenderArray] = useState([]);
     const [paused, setPaused] = useState(false);
+    const [disable, setDisable] = useState(false);
     const [currentState, setCurrentState] = useState(0);
     const title = useRef();
     const body = useRef();
@@ -17,10 +18,6 @@ export const ClickGame = () => {
         renderBall();
         setPlayStatus(true);
         timeRef.current?.startTimer();
-    };
-
-    const handleAutoPlay = () => {
-        
     };
 
     const handleRestart = () => {
@@ -67,6 +64,7 @@ export const ClickGame = () => {
     const passLogic = () => {
         timeRef.current.stopTimer();
         title.current?.success();
+        setDisable(pre => !pre);
     };
 
     const clickBall = (number) => {
@@ -80,11 +78,9 @@ export const ClickGame = () => {
         title.current?.init();
     };
 
-    useEffect(() => {
-        if(autoPlay) {
-
-        }
-    }, [autoPlay]);
+    const unableRestart = () => {
+        setDisable(pre => !pre);
+    }
 
     return (
         <div className="body">
@@ -101,12 +97,12 @@ export const ClickGame = () => {
                     </div>
                     <div className="form-group">
                         {!playStatus ? <button onClick={handleClickStart} className="button">Play</button>
-                                        : <><button onClick={handleRestart} className="button">Restart</button>
+                                        : <><button onClick={!disable ? handleRestart : null} className="button">Restart</button>
                                             <button onClick={() => setAutoPlay(pre => !pre)} className="button">Auto Play {autoPlay ? 'ON' : 'OFF'}</button></>}
                     </div>
                 </div>
                 <div ref={body} className="container__body">
-                    <BallList renderArray={renderArray} isPaused={paused} failLogic={failLogic} passLogic={passLogic} isAuto={autoPlay} clickBall={clickBall} />
+                    <BallList unableRestart={unableRestart} renderArray={renderArray} isPaused={paused} failLogic={failLogic} passLogic={passLogic} isAuto={autoPlay} clickBall={clickBall} />
                 </div>
                 <div className="container__footer">
                     <span className="text">Next: {currentState}</span>
@@ -230,15 +226,15 @@ const Ball = forwardRef((props, ref) => {
 
     const handleClickBall = () => {
         setFirstClick(true);
-        setIsRunning(true);
+        setIsRunning(pre => !pre);
         handleBallClick(number);    
         setShowCounter(true);
         timeRef.current?.startTimer();
     };
 
     const handleTimeOut = () => {
-        lastChild && passLogic();
         setInvisible(pre => !pre);
+        lastChild && passLogic();
     };
 
     const hanlePaused = () => {
@@ -248,7 +244,7 @@ const Ball = forwardRef((props, ref) => {
 
     useEffect(() => {
         hanlePaused();
-        isPaused && setFirstClick(true);
+        isPaused && setFirstClick(pre => !pre);
     }, [isPaused]);
 
     useImperativeHandle(ref, () => ({
@@ -275,7 +271,7 @@ const Ball = forwardRef((props, ref) => {
 
 const BallList = (props) => {
 
-    const {renderArray, isPaused, failLogic, passLogic, clickBall, isAuto} = props;
+    const {renderArray, isPaused, failLogic, passLogic, clickBall, isAuto, unableRestart} = props;
     const [lastChild, setLastChild] = useState(false);
     const [autoPlay, setAutoPlay] = useState({
         state: 0,
@@ -303,6 +299,7 @@ const BallList = (props) => {
             if(lastChild != number) {
                 currentState.state = currentState.array[number];
                 if(currentState.state === lastChild) {
+                    unableRestart();
                     setLastChild(true);
                 }
                 clickBall(currentState.state);
