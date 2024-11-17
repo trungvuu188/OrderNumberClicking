@@ -57,8 +57,7 @@ export const ClickGame = () => {
     const failLogic = () => {
         timeRef.current?.stopTimer();
         title.current?.fail();
-        setPaused(true)
-
+        setPaused(true);
     };
 
     const passLogic = () => {
@@ -98,7 +97,7 @@ export const ClickGame = () => {
                     <div className="form-group">
                         {!playStatus ? <button onClick={handleClickStart} className="button">Play</button>
                                         : <><button onClick={!disable ? handleRestart : null} className="button">Restart</button>
-                                            <button onClick={() => setAutoPlay(pre => !pre)} className="button">Auto Play {autoPlay ? 'ON' : 'OFF'}</button></>}
+                                            <button onClick={!paused ? () => setAutoPlay(pre => !pre) : null} className="button">Auto Play {autoPlay ? 'ON' : 'OFF'}</button></>}
                     </div>
                 </div>
                 <div ref={body} className="container__body">
@@ -260,7 +259,7 @@ const Ball = forwardRef((props, ref) => {
                     animationName: isRunning ? 'fadeAway' : '',
                     animationDuration: '3s',
                     animationTimingFunction: "ease-in-out",
-                    animationPlayState: paused ? 'paused' : 'running', 
+                    animationPlayState: !paused ? 'paused' : 'running', 
                     zIndex: zIndex}} 
             ref={ball} onClick={!firstClick ? handleClickBall : null} className="ball">
             <span className="ball__number">{number}</span>
@@ -294,9 +293,9 @@ const BallList = (props) => {
     }, [renderArray]);
 
     const clickOrderBall = (number) => {
-        if(number == currentState.state) {
+        if(number === currentState.state) {
             const lastChild = currentState.array[currentState.array.length - 1];
-            if(lastChild != number) {
+            if(lastChild !== number) {
                 currentState.state = currentState.array[number];
                 if(currentState.state === lastChild) {
                     unableRestart();
