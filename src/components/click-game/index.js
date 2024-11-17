@@ -230,9 +230,9 @@ const Ball = forwardRef((props, ref) => {
 
     const handleClickBall = () => {
         setFirstClick(true);
-        setIsRunning(pre => !pre);
+        setIsRunning(true);
         handleBallClick(number);    
-        setShowCounter(pre => !pre);
+        setShowCounter(true);
         timeRef.current?.startTimer();
     };
 
@@ -243,7 +243,7 @@ const Ball = forwardRef((props, ref) => {
 
     const hanlePaused = () => {
         timeRef.current?.stopTimer();
-        setPaused(true);
+        setPaused(pre => !pre);
     };
 
     useEffect(() => {
